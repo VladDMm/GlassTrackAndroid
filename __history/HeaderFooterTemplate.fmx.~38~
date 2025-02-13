@@ -1,0 +1,64 @@
+object HeaderFooterForm: THeaderFooterForm
+  Left = 0
+  Top = 0
+  Caption = 'Header Footer Form'
+  ClientHeight = 568
+  ClientWidth = 384
+  FormFactor.Width = 1440
+  FormFactor.Height = 900
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 3
+  object Header: TToolBar
+    Size.Width = 384.000000000000000000
+    Size.Height = 48.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object HeaderLabel: TLabel
+      Align = Contents
+      Size.Width = 384.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toollabel'
+      TextSettings.HorzAlign = Center
+      object LoadButton: TButton
+        Position.X = 288.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 88.000000000000000000
+        Size.Height = 32.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 156
+        Text = 'Refresh'
+        TextSettings.Trimming = None
+        OnClick = LoadButtonClick
+      end
+      object SearchEdit: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 157
+        Text = 'C'#259'utare'
+        TextSettings.HorzAlign = Center
+        Position.X = 24.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 177.000000000000000000
+        Size.Height = 32.000000000000000000
+        Size.PlatformDefault = False
+        OnChange = SearchEditChange
+        OnClick = SearchEditClick
+      end
+    end
+  end
+  object ListView1: TListView
+    ItemAppearanceClassName = 'TListItemAppearance'
+    ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Align = Client
+    Size.Width = 384.000000000000000000
+    Size.Height = 520.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    ItemAppearanceObjects.ItemObjects.Text.Font.Family = 'Arial'
+    ItemAppearanceObjects.ItemObjects.Text.Font.Size = 20.000000000000000000
+    OnItemClick = ListView1ItemClick
+  end
+end
