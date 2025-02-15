@@ -11,9 +11,9 @@ app.use(bodyParser.json());
 
 // Conectare la baza de date MariaDB
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: 'http://mqtt.halley.md:3306',
   user: 'root',  // Schimbă cu utilizatorul tău
-  password: 'root',  // Schimbă cu parola ta
+  password: 'Halley2025!',  // Schimbă cu parola ta
   database: 'glasstrack_db'  // Schimbă cu numele bazei tale de date
 });
 

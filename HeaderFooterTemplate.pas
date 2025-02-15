@@ -10,21 +10,25 @@ uses
   FMX.ListView.Adapters.Base, System.RegularExpressions,
   System.Net.URLClient,
   System.JSON,FMX.DialogService,
-  FMX.ListView.Appearances, IdHTTP, IdTCPClient, IdGlobal, FMX.Edit, IdSSLOpenSSL;
+  FMX.ListView.Appearances, IdHTTP, IdTCPClient, IdGlobal, FMX.Edit, FMX.Layouts, IdSSLOpenSSL,FMX.VirtualKeyboard, FMX.Platform;
 
 type
   THeaderFooterForm = class(TForm)
     Header: TToolBar;
     HeaderLabel: TLabel;
-    LoadButton: TButton;
     ListView1: TListView;
     SearchEdit: TEdit;
+    Layout1: TLayout;
     procedure SearchEditChange(Sender: TObject);
-    procedure LoadButtonClick(Sender: TObject);
+//    procedure LoadButtonClick(Sender: TObject);
     procedure ListView1ItemClick(const Sender: TObject;
       const AItem: TListViewItem);
     procedure SearchEditClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormVirtualKeyboardShown(Sender: TObject;
+      KeyboardVisible: Boolean; const Bounds: TRect);
+    procedure FormVirtualKeyboardHidden(Sender: TObject;
+      KeyboardVisible: Boolean; const Bounds: TRect);
 
   private
     { Private declarations }
@@ -70,30 +74,6 @@ begin
   end;
 end;
 
-
-//function IsServerAvailable(const Host: string; Port: Integer): Boolean;
-//var
-//  TCPClient: TIdTCPClient;
-//begin
-//  Result := False;
-//  TCPClient := TIdTCPClient.Create(nil);
-//  try
-//
-//    TCPClient.Host := Host;
-//    TCPClient.Port := Port;
-//    try
-//      TCPClient.ConnectTimeout := 10000; // Timp de așteptare 10 secunde
-//      TCPClient.Connect;
-//      Result := True;
-//    except
-//      on E: Exception do
-//        ShowMessage('Serverul nu este disponibil: ' + E.Message);
-//    end;
-//  finally
-//    TCPClient.Free;
-//  end;
-//end;
-
 function GetJSONValue(JSONObj: TJSONObject; const Key: string): string;
 var
   JSONValue: TJSONValue;
@@ -105,144 +85,8 @@ begin
     Result := 'N/A';
 end;
 
-procedure THeaderFooterForm.LoadButtonClick(Sender: TObject);
-var
-  HttpClient: TIdHTTP;
-  Response: WideString;
-  JSONArray: TJSONArray;
-  JSONObject: TJSONObject;
-  I: Integer;
-begin
-  HttpClient := TIdHTTP.Create(nil);
-  if not IsServerAvailable('192.168.15.254', 80) then
-    Exit;
-  try
-    // Descarcă răspunsul de la server
-    Response := HttpClient.Get('http://192.168.15.254/api.php');
-
-    // Dacă răspunsul este în UTF-8, folosește TEncoding.UTF8
-    Response := TEncoding.UTF8.GetString(TEncoding.Default.GetBytes(Response));
-
-   // Response := TEncoding.GetEncoding(1251).GetString(TEncoding.Default.GetBytes(Response));
-
-    // Verifică dacă răspunsul este gol
-    if Response = '' then
-    begin
-      ShowMessage('Răspunsul de la server este gol!');
-      Exit;
-    end;
-
-    // Parsează răspunsul JSON
-    JSONArray := TJSONArray.ParseJSONValue(Response) as TJSONArray;
-    if Assigned(JSONArray) then
-    begin
-      ListView1.Items.Clear;
-
-      for I := 0 to JSONArray.Count - 1 do
-      begin
-        JSONObject := JSONArray.Items[I] as TJSONObject;
-        if Assigned(JSONObject) then
-        begin
-          with ListView1.Items.Add do
-          begin
-            Text := Format('%s', [GetJSONValue(JSONObject, 'a_marca_model')]);
-
-            Detail := Format('Marca: %s' + sLineBreak + 'Cod: %s' + sLineBreak +
-              'Celula: %s' + sLineBreak + 'Cantitate: %s' + sLineBreak +
-              'Preţ: %s', [GetJSONValue(JSONObject, 'a_marca_model'),
-              GetJSONValue(JSONObject, 'cod'), GetJSONValue(JSONObject,
-              'nume_celula'), GetJSONValue(JSONObject, 'p_count'),
-              GetJSONValue(JSONObject, 'p_price')]);
-          end;
-        end
-        else
-          ShowMessage('Obiectul JSON nu conține date valide!');
-      end;
-    end
-    else
-      ShowMessage('Răspunsul JSON este invalid!');
-
-  except
-    on E: Exception do
-      ShowMessage('Eroare: ' + E.Message);
-  end;
-  HttpClient.Free;
-end;
-
  procedure THeaderFooterForm.FormCreate(Sender: TObject);
-var
-  HttpClient: TIdHTTP;
-  Response: WideString;
-  JSONArray: TJSONArray;
-  JSONObject: TJSONObject;
-  I: Integer;
-begin
-  HttpClient := TIdHTTP.Create(nil);
- // IsServerAvailable('192.168.15.254', 80);
- if not IsServerAvailable('192.168.15.254', 80) then
-    Exit;
-  try
-    // Descarcă răspunsul de la server
-    Response := HttpClient.Get('http://192.168.15.254/api.php');
-
-    // Dacă răspunsul este în UTF-8, folosește TEncoding.UTF8
-    Response := TEncoding.UTF8.GetString(TEncoding.Default.GetBytes(Response));
-
-   // Response := TEncoding.GetEncoding(1251).GetString(TEncoding.Default.GetBytes(Response));
-
-    // Verifică dacă răspunsul este gol
-    if Response = '' then
-    begin
-      ShowMessage('Răspunsul de la server este gol!');
-      Exit;
-    end;
-
-    // Parsează răspunsul JSON
-    JSONArray := TJSONArray.ParseJSONValue(Response) as TJSONArray;
-    if Assigned(JSONArray) then
-    begin
-      ListView1.Items.Clear;
-
-      for I := 0 to JSONArray.Count - 1 do
-      begin
-        JSONObject := JSONArray.Items[I] as TJSONObject;
-        if Assigned(JSONObject) then
-        begin
-          with ListView1.Items.Add do
-          begin
-            Text := Format('%s', [GetJSONValue(JSONObject, 'a_marca_model')]);
-
-            Detail := Format('Marca: %s' + sLineBreak + 'Cod: %s' + sLineBreak +
-              'Celula: %s' + sLineBreak + 'Cantitate: %s' + sLineBreak +
-              'Preţ: %s', [GetJSONValue(JSONObject, 'a_marca_model'),
-              GetJSONValue(JSONObject, 'cod'), GetJSONValue(JSONObject,
-              'nume_celula'), GetJSONValue(JSONObject, 'p_count'),
-              GetJSONValue(JSONObject, 'p_price')]);
-          end;
-        end
-        else
-          ShowMessage('Obiectul JSON nu conține date valide!');
-      end;
-    end
-    else
-      ShowMessage('Răspunsul JSON este invalid!');
-
-  except
-    on E: Exception do
-      ShowMessage('Eroare: ' + E.Message);
-  end;
-  HttpClient.Free;
-
-end;
-
-procedure THeaderFooterForm.ListView1ItemClick(const Sender: TObject;
-  const AItem: TListViewItem);
-begin
-  ShowMessage(AItem.Detail); // Afișează conținutul detaliilor
-end;
-
-procedure THeaderFooterForm.SearchEditChange(Sender: TObject);
-var
+     var
   IdHTTPClient: TIdHTTP;
   response: string;
   jsonArray: TJSONArray;
@@ -251,7 +95,7 @@ var
   listItem: TListViewItem;
 begin
   searchText := Trim(SearchEdit.Text);
-  url := Format('http://192.168.15.254:8080/api/products?search=%s', [searchText]);
+  url := ('http://95.65.99.176:8080/api/products?search');
 
   IdHTTPClient := TIdHTTP.Create(nil);
   try
@@ -271,7 +115,154 @@ begin
         for jsonValue in jsonArray do
         begin
           listItem := ListView1.Items.Add;
-          listItem.Text := jsonValue.GetValue<string>('a_marca_model');
+          listItem.Text := jsonValue.GetValue<string>('a_marca_model') + '    ' + jsonValue.GetValue<string>('cod');
+          listItem.Detail := Format('Cod: %s, Celulă: %s, Preț: %s',
+            [jsonValue.GetValue<string>('cod'),
+             jsonValue.GetValue<string>('nume_celula'),
+             jsonValue.GetValue<string>('p_price')]);
+        end;
+      end
+      else
+        ShowMessage('Răspunsul de la API nu este valid!');
+
+    except
+      on E: Exception do
+        ShowMessage('Eroare la conectarea la API: ' + E.Message);
+    end;
+
+  finally
+    IdHTTPClient.Free;
+  end;
+ end;
+
+// procedure THeaderFooterForm.FormCreate(Sender: TObject);
+//var
+//  HttpClient: TIdHTTP;
+//  Response: WideString;
+//  JSONArray: TJSONArray;
+//  JSONObject: TJSONObject;
+//  I: Integer;
+//begin
+//  HttpClient := TIdHTTP.Create(nil);
+// // IsServerAvailable('192.168.15.254', 80);
+// if not IsServerAvailable('172.16.0.66', 80) then
+//    Exit;
+//  try
+//    // Descarcă răspunsul de la server
+//    Response := HttpClient.Get('http://172.16.0.66/api.php');
+//
+//    // Dacă răspunsul este în UTF-8, folosește TEncoding.UTF8
+//    Response := TEncoding.UTF8.GetString(TEncoding.Default.GetBytes(Response));
+//
+//   // Response := TEncoding.GetEncoding(1251).GetString(TEncoding.Default.GetBytes(Response));
+//
+//    // Verifică dacă răspunsul este gol
+//    if Response = '' then
+//    begin
+//      ShowMessage('Răspunsul de la server este gol!');
+//      Exit;
+//    end;
+//
+//    // Parsează răspunsul JSON
+//    JSONArray := TJSONArray.ParseJSONValue(Response) as TJSONArray;
+//    if Assigned(JSONArray) then
+//    begin
+//      ListView1.Items.Clear;
+//
+//      for I := 0 to JSONArray.Count - 1 do
+//      begin
+//        JSONObject := JSONArray.Items[I] as TJSONObject;
+//        if Assigned(JSONObject) then
+//        begin
+//          with ListView1.Items.Add do
+//          begin
+//            Text := Format('%s' + '   ' +'%s', [GetJSONValue(JSONObject, 'a_marca_model'),
+//            GetJSONValue(JSONObject, 'cod')]);
+//
+//            Detail := Format('Marca: %s' + sLineBreak + 'Cod: %s' + sLineBreak +
+//              'Celula: %s' + sLineBreak + 'Cantitate: %s' + sLineBreak +
+//              'Preţ: %s', [GetJSONValue(JSONObject, 'a_marca_model'),
+//              GetJSONValue(JSONObject, 'cod'), GetJSONValue(JSONObject,
+//              'nume_celula'), GetJSONValue(JSONObject, 'p_count'),
+//              GetJSONValue(JSONObject, 'p_price')]);
+//          end;
+//        end
+//        else
+//          ShowMessage('Obiectul JSON nu conține date valide!');
+//      end;
+//    end
+//    else
+//      ShowMessage('Răspunsul JSON este invalid!');
+//
+//  except
+//    on E: Exception do
+//      ShowMessage('Eroare: ' + E.Message);
+//  end;
+//  HttpClient.Free;
+//
+//end;
+
+
+//
+procedure THeaderFooterForm.FormVirtualKeyboardShown(Sender: TObject; KeyboardVisible: Boolean;
+  const Bounds: TRect);
+var
+  VKOffset: Single;
+begin
+  if KeyboardVisible then
+  begin
+    VKOffset := Bounds.Height;  // Înălțimea tastaturii virtuale
+    Layout1.Margins.Bottom := VKOffset;  // Ajustează marginea de jos
+    Application.ProcessMessages;  // Actualizează UI imediat
+  end;
+end;
+
+procedure THeaderFooterForm.FormVirtualKeyboardHidden(Sender: TObject; KeyboardVisible: Boolean;
+  const Bounds: TRect);
+begin
+  Layout1.Margins.Bottom := 0;  // Resetează marginea de jos
+  Application.ProcessMessages;
+end;
+
+procedure THeaderFooterForm.ListView1ItemClick(const Sender: TObject;
+  const AItem: TListViewItem);
+begin
+  ShowMessage(AItem.Detail); // Afișează conținutul detaliilor
+end;
+
+// bara cautare
+procedure THeaderFooterForm.SearchEditChange(Sender: TObject);
+var
+  IdHTTPClient: TIdHTTP;
+  response: string;
+  jsonArray: TJSONArray;
+  jsonValue: TJSONValue;
+  searchText, url: string;
+  listItem: TListViewItem;
+begin
+  searchText := Trim(SearchEdit.Text);
+  url := Format('http://95.65.99.176:8080/api/products?search=%s', [searchText]);
+
+  IdHTTPClient := TIdHTTP.Create(nil);
+  try
+
+    IdHTTPClient.IOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(IdHTTPClient);
+
+    try
+      response := IdHTTPClient.Get(url);
+
+      // Procesarea răspunsului JSON
+      jsonArray := TJSONObject.ParseJSONValue(response) as TJSONArray;
+      if Assigned(jsonArray) then
+      begin
+        ListView1.Items.Clear;
+
+        // Iterează prin array-ul JSON și adaugă elemente în ListView
+        for jsonValue in jsonArray do
+        begin
+          listItem := ListView1.Items.Add;
+          listItem.Text := jsonValue.GetValue<string>('a_marca_model') + '    '
+           + jsonValue.GetValue<string>('cod');
           listItem.Detail := Format('Cod: %s, Celulă: %s, Preț: %s',
             [jsonValue.GetValue<string>('cod'),
              jsonValue.GetValue<string>('nume_celula'),
