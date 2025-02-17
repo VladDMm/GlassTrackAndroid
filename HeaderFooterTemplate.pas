@@ -95,7 +95,8 @@ end;
   listItem: TListViewItem;
 begin
   searchText := Trim(SearchEdit.Text);
-  url := ('http://95.65.99.176:8080/api/products?search');
+  //url := ('http://95.65.99.176:8080/api/products?search');
+   url := ('http://192.168.15.254:8080/api/products?search');
 
   IdHTTPClient := TIdHTTP.Create(nil);
   try
@@ -241,7 +242,8 @@ var
   listItem: TListViewItem;
 begin
   searchText := Trim(SearchEdit.Text);
-  url := Format('http://95.65.99.176:8080/api/products?search=%s', [searchText]);
+  url := Format('http://192.168.15.254:8080/api/products?search=%s', [searchText]);
+  //url := Format('http://95.65.99.176:8080/api/products?search=%s', [searchText]);
 
   IdHTTPClient := TIdHTTP.Create(nil);
   try
