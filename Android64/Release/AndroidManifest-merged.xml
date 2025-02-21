@@ -2,7 +2,7 @@
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.embarcadero.HeaderFooterApplication"
+    package="com.embarcadero.GlassTrackApp"
     android:installLocation="preferExternal"
     android:versionCode="1"
     android:versionName="1.0.0" >
@@ -40,7 +40,7 @@
         android:extractNativeLibs="true"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
-        android:label="HeaderFooterApplication"
+        android:label="GlassTrackApp"
         android:largeHeap="False"
         android:persistent="False"
         android:requestLegacyExternalStorage="true"
@@ -71,13 +71,13 @@
             android:name="com.embarcadero.firemonkey.FMXNativeActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
             android:exported="true"
-            android:label="HeaderFooterApplication"
+            android:label="GlassTrackApp"
             android:launchMode="singleTask" >
 
             <!-- Tell NativeActivity the name of our .so -->
             <meta-data
                 android:name="android.app.lib_name"
-                android:value="HeaderFooterApplication" />
+                android:value="GlassTrackApp" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
